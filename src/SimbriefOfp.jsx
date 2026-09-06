@@ -37,13 +37,15 @@ export default function SimbriefOfp() {
           return;
         }
 
-        // A localização exata do link do PDF pode variar consoante a versão
-        // da API do SimBrief, por isso tentamos os caminhos mais comuns.
+        // O campo "link" do SimBrief é só o nome do ficheiro (ex:
+        // "LPPTLPFR_PDF_1788693697.pdf"), tem de ser juntado ao
+        // "directory" (ex: "https://www.simbrief.com/ofp/flightplans/")
+        // para formar o URL completo do PDF.
         const directory = data?.fms_downloads?.directory || '';
+        const pdfFile = data?.fms_downloads?.pdf?.link || '';
         const candidates = [
-          data?.fms_downloads?.pdf?.link,
+          directory && pdfFile ? `${directory}${pdfFile}` : null,
           data?.text?.pdf?.link,
-          directory && data?.fms_downloads?.pdf?.link_only ? `${directory}${data.fms_downloads.pdf.link_only}` : null,
         ];
 
         // Só aceitamos um link que seja mesmo um URL completo (http/https),
