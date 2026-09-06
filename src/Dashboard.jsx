@@ -14,6 +14,7 @@ function Dashboard() {
 
   const apps = [
     { name: 'eFlight Manager', icon: <Plane size={36} />, path: 'https://www.simbrief.com', external: true },
+    { name: 'SimBrief OFP', icon: <FileText size={36} />, path: '/simbrief-ofp' },
     { name: charts.name, icon: <Map size={36} />, path: charts.path, external: true },
     { name: 'Parkings', icon: <MapPin size={36} />, path: '/parkings' },
     { name: 'Weather', icon: <Cloud size={36} />, path: '/weather' },
