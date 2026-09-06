@@ -10,6 +10,7 @@ import Checklist from './Checklist';
 import Parkings from './Parkings';
 import Performance from './Performance';
 import Settings from './Settings';
+import SimbriefOfp from './SimbriefOfp';
 
 // ------------------------------------------------------------------
 // CONFIGURAÇÕES DO DISCORD
@@ -26,7 +27,9 @@ const DISCORD_AUTH_URL = `https://discord.com/oauth2/authorize?client_id=${CLIEN
 // PROVEDORES DE CARTAS — tem de bater certo com as opções em Settings.jsx
 // ------------------------------------------------------------------
 const CHART_PROVIDERS = {
-  'Navigraph Charts (App)': { label: 'Navigraph', url: 'https://charts.navigraph.com', external: false },
+  // O Navigraph bloqueia ser embutido em iframe (dá erro de API quando
+  // aberto dentro do EFB), por isso abre sempre numa nova aba.
+  'Navigraph Charts (App)': { label: 'Navigraph', url: 'https://charts.navigraph.com', external: true },
   'MSFS24 Lido (Web)': { label: 'MSFS24 Lido', url: 'https://planner.flightsimulator.com/landing.html', external: true },
   'ChartFox (Web)': { label: 'ChartFox', url: 'https://chartfox.org', external: true },
 };
@@ -202,6 +205,7 @@ function IpadHome() {
     { name: 'Dashboard', path: '/', icon: <Home size={40} />, bg: 'linear-gradient(135deg, #0A5A30, #13874B)' },
     { name: 'Weather', path: '/weather', icon: <Cloud size={40} />, bg: 'linear-gradient(135deg, #1e3c72, #2a5298)' },
     { name: 'SimBrief', path: '/simbrief', icon: <Compass size={40} />, bg: 'linear-gradient(135deg, #ff7e5f, #feb47b)' },
+    { name: 'SimBrief OFP', path: '/simbrief-ofp', icon: <FileText size={40} />, bg: 'linear-gradient(135deg, #009ffd, #2a2a72)' },
     { name: chartInfo.label, path: '/charts', icon: <Navigation size={40} />, bg: 'linear-gradient(135deg, #2b5876, #4e4376)' },
     { name: 'Parkings', path: '/parkings', icon: <MapPin size={40} />, bg: 'linear-gradient(135deg, #654ea3, #eaafc8)' },
     { name: 'Takeoff Perf', path: '/performance-takeoff', icon: <Gauge size={40} />, bg: 'linear-gradient(135deg, #f12711, #f5af19)' },
@@ -272,6 +276,7 @@ function IpadAppLayout() {
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/simbrief" element={<IFrameView url="https://www.simbrief.com" title="SimBrief" />} />
+            <Route path="/simbrief-ofp" element={<SimbriefOfp />} />
             <Route path="/charts" element={<IFrameView url={chartInfo.url} title={chartInfo.label} />} />
             <Route path="/weather" element={<Weather />} />
             <Route path="/parkings" element={<Parkings />} />
