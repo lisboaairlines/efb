@@ -5,7 +5,7 @@ import './Checklist.css';
 function Checklist() {
   const [activeTab, setActiveTab] = useState('A320 Family');
 
-  const families = ['A320 Family', 'Boeing 737 Family', 'A350 Family', 'A330 Family'];
+  const families = ['A320 Family', 'Boeing 737 Family'];
 
   return (
     <div className="view-container" style={{ padding: '20px', display: 'flex', gap: '20px' }}>
