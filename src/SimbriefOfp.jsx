@@ -10,6 +10,7 @@ export default function SimbriefOfp() {
   const [pdfUrl, setPdfUrl] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [rawData, setRawData] = useState(null);
 
   const fetchOfp = useCallback(() => {
     const username = localStorage.getItem('simbrief_username');
@@ -26,6 +27,9 @@ export default function SimbriefOfp() {
     fetch(`https://www.simbrief.com/api/xml.fetcher.php?username=${username}&json=1`)
       .then((res) => res.json())
       .then((data) => {
+        setRawData(data);
+        console.log('SimBrief API response:', data);
+
         if (data && data.fetch && data.fetch.status && data.fetch.status !== 'Success') {
           setError(`SimBrief: ${data.fetch.status}`);
           setPdfUrl(null);
@@ -35,15 +39,19 @@ export default function SimbriefOfp() {
 
         // A localização exata do link do PDF pode variar consoante a versão
         // da API do SimBrief, por isso tentamos os caminhos mais comuns.
-        const link =
-          data?.fms_downloads?.pdf?.link ||
-          data?.text?.pdf?.link ||
-          (data?.fms_downloads?.directory
-            ? `${data.fms_downloads.directory}${data.fms_downloads.pdf?.link_only || ''}`
-            : null);
+        const directory = data?.fms_downloads?.directory || '';
+        const candidates = [
+          data?.fms_downloads?.pdf?.link,
+          data?.text?.pdf?.link,
+          directory && data?.fms_downloads?.pdf?.link_only ? `${directory}${data.fms_downloads.pdf.link_only}` : null,
+        ];
+
+        // Só aceitamos um link que seja mesmo um URL completo (http/https),
+        // para evitar tentar carregar um caminho relativo dentro do próprio EFB.
+        const link = candidates.find((c) => typeof c === 'string' && /^https?:\/\//i.test(c));
 
         if (!link) {
-          setError('Não foi encontrado nenhum PDF no último OFP. Gera um plano de voo no SimBrief primeiro.');
+          setError('Não foi encontrado um link de PDF válido na resposta do SimBrief (ver detalhes técnicos abaixo).');
           setPdfUrl(null);
         } else {
           setPdfUrl(link);
@@ -99,7 +107,7 @@ export default function SimbriefOfp() {
           </button>
         </div>
 
-        <div style={{ flex: 1, position: 'relative' }}>
+        <div style={{ flex: 1, position: 'relative', overflowY: 'auto' }}>
           {loading && (
             <div
               style={{
@@ -124,7 +132,7 @@ export default function SimbriefOfp() {
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                height: '100%',
+                minHeight: '100%',
                 color: '#ff4d4d',
                 gap: 12,
                 padding: 20,
@@ -141,6 +149,29 @@ export default function SimbriefOfp() {
               >
                 Abrir SimBrief <ExternalLink size={14} />
               </a>
+
+              {rawData && (
+                <details style={{ marginTop: 20, textAlign: 'left', width: '100%', maxWidth: 700, color: 'var(--text-secondary)' }}>
+                  <summary style={{ cursor: 'pointer', color: 'var(--vivid-cyan)' }}>
+                    Detalhes técnicos (copia isto e envia ao suporte)
+                  </summary>
+                  <pre
+                    style={{
+                      whiteSpace: 'pre-wrap',
+                      wordBreak: 'break-all',
+                      background: 'rgba(0,0,0,0.4)',
+                      padding: 12,
+                      borderRadius: 8,
+                      fontSize: '0.7rem',
+                      marginTop: 10,
+                      maxHeight: 300,
+                      overflowY: 'auto',
+                    }}
+                  >
+                    {JSON.stringify(rawData?.fms_downloads ?? rawData, null, 2)}
+                  </pre>
+                </details>
+              )}
             </div>
           )}
 
